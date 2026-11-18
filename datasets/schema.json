@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "radius_m": 75.0,
+  "max_candidates": 20,
+  "gap_s": 30.0,
+  "observations_columns": [
+    "trip_id",
+    "obs_idx",
+    "orig_row",
+    "timestamp",
+    "dt_prev",
+    "is_gap",
+    "lon",
+    "lat",
+    "x",
+    "y",
+    "speed",
+    "heading",
+    "n_candidates",
+    "true_arc_id",
+    "label_quality",
+    "heading_valid",
+    "true_dist_m"
+  ],
+  "candidates_columns": [
+    "trip_id",
+    "obs_idx",
+    "arc_id",
+    "from_node",
+    "to_node",
+    "dist_to_arc_m",
+    "snap_x",
+    "snap_y",
+    "offset_m",
+    "arc_length_m",
+    "bearing_diff_deg",
+    "cand_rank",
+    "label"
+  ],
+  "sort_order": "candidates: trip_id, obs_idx, cand_rank; observations: trip_id, obs_idx",
+  "ids": "arc_id and node_id are PER TRIP; global key = (trip_id, arc_id)",
+  "projection": "Local equirectangular tangent plane in metres: x = east, y = north, origin = (lon0, lat0) = mean of the cleaned GPS track of that trip (stored in trips_meta_*.csv). Input degrees are assumed WGS84 lon/lat.",
+  "label_quality_values": [
+    "ok",
+    "ambiguous",
+    "far",
+    "gap",
+    "unlabeled"
+  ],
+  "thresholds": {
+    "ambiguous_m": 5.0,
+    "far_m": 50.0,
+    "align_lambda_m_per_route_pos": 0.5
+  }
+}

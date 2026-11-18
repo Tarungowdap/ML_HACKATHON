@@ -1,2 +1,6 @@
-*.parquet
-*.zip
+# too large for GitHub - download from Drive into datasets/processed/
+datasets/processed/arcs_train.parquet
+datasets/processed/nodes_train.parquet
+__pycache__/
+*.pyc
+.ipynb_checkpoints/

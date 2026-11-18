@@ -1,0 +1,31 @@
+table,column,unit,meaning
+observations,trip_id,str,Trip folder name
+observations,obs_idx,int,"0-based index of the GPS point after cleaning, time order"
+observations,orig_row,int,0-based row in the raw .track file
+observations,timestamp,s,Raw timestamp
+observations,dt_prev,s,Seconds since previous point (0 for first point and for duplicate timestamps)
+observations,is_gap,bool,dt_prev > 30 s
+observations,lon,deg,Longitude (WGS84)
+observations,lat,deg,Latitude (WGS84)
+observations,x,m,"East, local projection, origin = trip lon0/lat0 (trips_meta)"
+observations,y,m,"North, same projection"
+observations,speed,m/s,"Step distance / max(dt_prev, 1 s)"
+observations,heading,deg,"Compass bearing of movement from previous point (0 = N, clockwise); carried forward if moved < 1 m"
+observations,n_candidates,count,Candidates kept for this point (can be 0)
+observations,true_arc_id,int,Reference arc from monotone alignment to .route (labelled data only)
+observations,label_quality,str,ok / ambiguous / far / gap / unlabeled (labelled data only)
+observations,heading_valid,bool,"True if the point moved >= 1 m so its own heading is measured, not carried forward"
+observations,true_dist_m,m,Distance from the point to its true arc (labelled data only)
+candidates,trip_id,str,Trip folder name
+candidates,obs_idx,int,Join key to observations
+candidates,arc_id,int,Row index in that trip's .arcs (PER TRIP)
+candidates,from_node,int,Arc from-node id (per trip)
+candidates,to_node,int,Arc to-node id (per trip)
+candidates,dist_to_arc_m,m,Point-to-segment distance
+candidates,snap_x,m,Snapped point x on the arc (same projection)
+candidates,snap_y,m,Snapped point y
+candidates,offset_m,m,Distance along the arc from from_node to the snap point
+candidates,arc_length_m,m,Arc length
+candidates,bearing_diff_deg,deg 0-180,|heading - arc bearing|; arc bearing is from_node -> to_node
+candidates,cand_rank,int,0 = closest candidate for that point
+candidates,label,0/1,1 = this arc is the reference arc
