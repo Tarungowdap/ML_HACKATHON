@@ -1,6 +1,6 @@
-model,config,cv_f1_mean,cv_f1_std,cv_top1,train_top1,train_s,st_top1,st_macro_f1,st_logloss,st_continuity,st_inf_ms_per_1k
-LogReg (linear),"C=1, lbfgs, scaled",0.8587,0.0392,0.7459,0.7411,7.5519,0.774,0.8577,0.1254,,0.2453
-DecisionTree (tree),"max_depth=12, min_leaf=50, gini",0.8808,0.0426,0.7695,0.7853,37.917,0.7933,0.8888,0.0996,,0.1787
-RandomForest (bagging),"200 trees, min_leaf=2",0.8859,0.0424,0.7769,0.8374,390.6838,0.8029,0.8962,0.086,,5.5488
-LightGBM (boosting),"300 est, lr=0.1, leaves=31",0.8838,0.0413,0.7691,0.8028,25.1986,0.7947,0.8925,0.1031,,9.3835
-MLP (neural),"(64,32), adam, early stop, scaled",0.8794,0.0351,0.7653,0.7939,77.2821,0.7934,0.8878,0.0968,,1.0218
+model,config,cv_f1_mean,cv_f1_std,cv_top1,train_top1,train_s,st_top1,st_accuracy,st_precision_pos,st_recall_pos,st_precision_macro,st_recall_macro,st_macro_f1,st_logloss,st_continuity,st_inf_ms_per_1k
+LogReg (linear),"C=1, lbfgs, scaled",0.8584,0.039,0.7458,0.7409,5.5513,0.7739,0.9521,0.7355,0.7486,0.855,0.8607,0.8578,0.1254,,0.1373
+DecisionTree (tree),"max_depth=12, min_samples_leaf=50, gini",0.8808,0.0426,0.7694,0.7852,20.9576,0.7933,0.9625,0.7904,0.8061,0.8854,0.8922,0.8888,0.0997,,0.1928
+RandomForest (bagging),"100 trees, max_depth=16, min_samples_leaf=2",0.8849,0.0426,0.776,0.8308,296.9331,0.8022,0.9656,0.8274,0.7914,0.9032,0.8873,0.895,0.0865,,9.1141
+LightGBM (boosting),"300 est, lr=0.1, num_leaves=31",0.8829,0.0404,0.7664,0.8008,23.229,0.7923,0.9635,0.7955,0.8122,0.8882,0.8955,0.8918,0.1059,,14.647
+MLP (neural),"(64,32), adam, early stop, max_iter=50, scaled",0.8794,0.0353,0.7657,0.7951,96.118,0.793,0.9621,0.7937,0.7943,0.8864,0.8867,0.8865,0.0949,,1.1572
