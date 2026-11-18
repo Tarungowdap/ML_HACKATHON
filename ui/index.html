@@ -255,6 +255,7 @@ function showResults(r, roundTrip) {
   $('#resTrip').textContent = r.trip_id;
   const cards = [];
   if (m.top1_accuracy != null) cards.push(['Top-1 accuracy (per GPS point)', fmtPct(m.top1_accuracy), true]);
+  if (m.route_f1 != null) cards.push(['Route F1 (connected route)', fmtPct(m.route_f1)]);
   if (m.candidate_miss_rate != null) cards.push(['Candidate miss rate', fmtPct(m.candidate_miss_rate)]);
   cards.push(['Arc F1', fmtPct(m.arc_f1)], ['Route continuity', fmtPct(m.route_continuity)],
              ['Arc precision', fmtPct(m.arc_precision)], ['Arc recall', fmtPct(m.arc_recall)],
@@ -265,7 +266,7 @@ function showResults(r, roundTrip) {
 
   const rows = [
     ['GPS points', m.num_observations], ['Candidates scored', t.num_candidates?.toLocaleString()],
-    ['Predicted route arcs', m.num_predicted_arcs], ['Reference route arcs', m.num_reference_arcs ?? '—'],
+    ['Predicted route arcs', r.predicted_route_arcs.length], ['Reference route arcs', m.num_reference_arcs ?? '—'],
     ['Candidate generation', fmtS(t.features_s)], ['Classifier scoring', fmtS(t.scoring_s)],
     ['HMM / Viterbi decoding', fmtS(t.decoding_s)], ['Server total', fmtS(t.total_s)], ['Round trip (UI)', fmtS(roundTrip)],
   ];
@@ -282,7 +283,8 @@ function showResults(r, roundTrip) {
   $('#cmpSec').hidden = !cmpRows.length;
   const names = { features: 'Candidates + features', scorer: 'Classifier', decoder: 'HMM / Viterbi' };
   $('#stages').innerHTML = Object.entries(r.placeholders).map(([k, ph]) =>
-    `<tr><td>${names[k] || k}</td><td class="stage ${ph ? 'ph' : 'real'}">${ph ? 'placeholder' : 'team model'}</td></tr>`).join('');
+    `<tr><td>${names[k] || k}</td><td class="stage ${ph ? 'ph' : 'real'}">${ph ? 'placeholder' : 'team model'}</td></tr>`).join('') +
+    (r.hmm_emission ? `<tr><td>HMM emission</td><td class="stage real">${r.hmm_emission}</td></tr>` : '');
 
   ['#resultsSec', '#detailSec', '#stageSec'].forEach(s => $(s).hidden = false);
 }

@@ -12,7 +12,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # Point this at student_test during development and at evaluator_test for the final demo.
 EVAL_DIR = Path(os.getenv("PATHSNAP_EVAL_DIR", REPO_ROOT / "data" / "evaluator_test"))
 
-# Plug-in points, written as "module.path:function_name".
+# P3's tuned HMM settings (emission gaussian | pmatch | blend, sigma, beta, ...).
+HMM_CONFIG = Path(os.getenv("PATHSNAP_HMM_CONFIG", REPO_ROOT / "hmm_config.json"))
+
+# Placeholder-mode plug-in points, used only if P1's/P3's modules are missing.
+# Written as "module.path:function_name".
 # If a module cannot be imported, the API falls back to a simple built-in
 # placeholder and flags it loudly in both the logs and the response.
 FEATURES_FN = os.getenv("PATHSNAP_FEATURES_FN", "src.features:build_candidates")   # P1
