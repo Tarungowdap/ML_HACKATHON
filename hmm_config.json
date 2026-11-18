@@ -1,0 +1,41 @@
+{
+  "emission": "gaussian",
+  "sigma_m": 6.0,
+  "w_pmatch": 1.0,
+  "heading_kappa": 0.0,
+  "heading_min_speed": 2.0,
+  "pmatch_floor": 1e-06,
+  "beta_m": 3.0,
+  "beta_dt_scale": true,
+  "same_arc_back_tol_m": 15.0,
+  "search_base_m": 200.0,
+  "vmax_mps": 60.0,
+  "search_max_m": 5000.0,
+  "uturn_logp": -20.0,
+  "log_floor": -40.0,
+  "log_unreachable": -60.0,
+  "gap_s": 30.0,
+  "split_on_gap": false,
+  "fill_missing": "prev",
+  "_meta": {
+    "tuned_on": "train",
+    "n_trips": 78,
+    "excluded_trips": [
+      "00000033",
+      "00000054"
+    ],
+    "metric": "max acc_hmm; among configs within 0.003, lowest median per-trip route edit distance (3 dp), then accuracy",
+    "n_configs_tried": 57,
+    "train_scores": {
+      "acc_top1": 0.5523463931026956,
+      "acc_hmm": 0.9222252537378588,
+      "acc_hmm_ok": 0.964106994529366,
+      "oracle_acc": 0.9905052930263014,
+      "cont_hmm": 0.8969317150288546,
+      "edit_med": 0.0786260113874737,
+      "f1_med": 0.9706464707831656,
+      "uturns": 35.0,
+      "breaks": 17.0
+    }
+  }
+}

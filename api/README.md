@@ -61,21 +61,28 @@ data/evaluator_test/<trip_id>/<trip_id>.track   lon lat t
 - `timings`: seconds per stage + `total_s`
 - `uses_placeholders`: **must be `false` before the demo**
 
-## Plugging in the team's modules
+## Pipeline
 
-The API imports these functions at startup (paths can be changed with the env vars in `config.py`):
+At startup the API loads the team's code and logs which pipeline it uses:
 
-| Owner | Default import | Signature |
+```
+pipeline  -> TEAM: P1 candidates, P2 classifier, P3 HMM (emission=gaussian, sigma=6.0 m, beta=3.0 m)
+```
+
+| Stage | Code | Owner |
 |---|---|---|
-| P1 | `src.features:build_candidates` | `(track, nodes, arcs) -> DataFrame` with `obs_idx`, `arc_id` + feature columns |
-| P2 | `src.model:score_candidates` | `(cands) -> np.ndarray` probability per row. **Done**: `src/model.py` loads `models/final_tuned_raw.joblib` and the 19 columns in `models/features_raw.json` |
-| P3 | `src.hmm:decode` | `(cands_with_prob, track, nodes, arcs) -> np.ndarray` arc_id per GPS point (`-1` = unmatched) |
-| P1 | `src.features:label_observations` | `(track, nodes, arcs, route) -> np.ndarray` true arc per GPS point (optional) |
+| Candidates + features (P2's 19 features) | `src/data/candidates.py:build_trip_candidates` | P1 |
+| Candidates for the HMM (schema 1.0) + server-side labels | `src/pathsnap/pathsnap.py` | P1 |
+| Classifier probability per candidate | `src/model.py:score_candidates` (LightGBM) | P2 |
+| HMM / Viterbi route | `src/hmm/api.py:match_trip`, settings in `hmm_config.json` | P3 |
 
-The trained scorer needs P1's full feature set, so while P1's builder is missing the API also uses the
-placeholder scorer (logged as `trained model needs P1's real features`).
+- **Classifier only** = P2's highest-probability candidate per GPS point, no HMM.
+- **+ HMM** = P3's Viterbi route. `hmm_config.json` `"emission"` chooses what the HMM uses per point:
+  `gaussian` (distance only), `pmatch` (P2's probability) or `blend` (both, weight `w_pmatch`).
+  P2's probabilities are joined onto the HMM's candidates by (raw track row, arc_id), never by row order.
+- **Top-1 accuracy** uses P1's `attach_labels` (the same labels as the report), counted over every labelled
+  GPS point; a point whose true arc is not among its candidates counts as wrong.
+- `run()` never sees the `.route` file; `score()` is the only code that reads it, and only numbers leave it.
 
-Any stage that can't be imported falls back to a simple placeholder in `api/fallbacks.py`
-(nearest arcs / hand-set score / per-point argmax). This keeps the API and UI testable early.
-It is **not** the submitted method: the startup log prints `PLACEHOLDER in use` and every
-response carries `"uses_placeholders": true` until all three real stages are in.
+If P1's or P3's modules can't be imported, the API falls back to the simple placeholders in
+`api/fallbacks.py`, logs `PLACEHOLDER in use`, and every response carries `"uses_placeholders": true`.

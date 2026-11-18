@@ -23,7 +23,6 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import config, data_io, metrics
-from .metrics import collapse
 from .pipeline import Pipeline
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-7s | %(message)s", datefmt="%H:%M:%S")
@@ -52,7 +51,7 @@ class PredictRequest(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "placeholders": pipeline.placeholders,
+    return {"status": "ok", "placeholders": pipeline.placeholders, "hmm_emission": pipeline.emission,
             "uses_placeholders": pipeline.uses_placeholders, "eval_dir": str(config.EVAL_DIR)}
 
 
@@ -109,42 +108,31 @@ def predict(req: PredictRequest):
     trip = data_io.load_trip(config.EVAL_DIR, req.trip_id)
     log.info("trip %s: %d GPS points, %d nodes, %d arcs", trip.trip_id, len(trip.track), len(trip.nodes), len(trip.arcs))
 
-    pred, pred_clf, cands, timings = pipeline.run(trip)
+    res = pipeline.run(trip)          # label-free: never sees the reference route
+    timings = res["timings"]
 
     # --- server-side evaluation (reference route never leaves this block) ---
     ref = data_io.load_reference_route(config.EVAL_DIR, req.trip_id)
-    obs_labels = None
-    if pipeline.labeller is not None and ref is not None:
-        obs_labels = pipeline.labeller(trip.track, trip.nodes, trip.arcs, ref)
-    scores = metrics.evaluate(pred, ref, trip.nodes, trip.arcs, obs_labels)
-    scores_clf = metrics.evaluate(pred_clf, ref, trip.nodes, trip.arcs, obs_labels)
-    if obs_labels is not None:
-        scores["candidate_miss_rate"] = metrics.candidate_miss_rate(cands, obs_labels)
-    del ref, obs_labels, cands
+    scores, scores_clf = pipeline.score(trip, ref, res)
+    del ref
 
     timings["total_s"] = time.perf_counter() - t_start
-    log.info("trip %s: %s | %.2fs total%s", trip.trip_id,
-             ", ".join(f"{k}={v:.3f}" for k, v in scores.items() if isinstance(v, float)),
-             timings["total_s"], " | PLACEHOLDER STAGES IN USE" if pipeline.uses_placeholders else "")
-    log.info("trip %s: classifier-only %s", trip.trip_id,
-             ", ".join(f"{k}={v:.3f}" for k, v in scores_clf.items() if isinstance(v, float)))
-
-    # Geometry for the map: predicted arcs as [lat, lon] polylines, GPS points as [lat, lon]
-    route = collapse(pred)
-    n = trip.nodes
-    f, t = trip.arcs.from_node.values[route], trip.arcs.to_node.values[route]
-    route_lines = [[[float(n.lat[a]), float(n.lon[a])], [float(n.lat[b]), float(n.lon[b])]] for a, b in zip(f, t)]
+    fmt = lambda d: ", ".join(f"{k}={v:.3f}" for k, v in d.items() if isinstance(v, float))  # noqa: E731
+    log.info("trip %s: HMM %s | %.2fs total%s", trip.trip_id, fmt(scores), timings["total_s"],
+             " | PLACEHOLDER STAGES IN USE" if pipeline.uses_placeholders else "")
+    log.info("trip %s: classifier-only %s", trip.trip_id, fmt(scores_clf))
 
     return {
         "trip_id": trip.trip_id,
         "uses_placeholders": pipeline.uses_placeholders,
         "placeholders": pipeline.placeholders,
+        "hmm_emission": pipeline.emission,
         "metrics": scores,                       # classifier + HMM/Viterbi (final output)
-        "metrics_classifier_only": scores_clf,   # same metrics, per-point argmax without the HMM
+        "metrics_classifier_only": scores_clf,   # P2's best candidate per GPS point, no HMM
         "timings": timings,
-        "gps_points": np.round(trip.track[["lat", "lon"]].values, 6).tolist(),
-        "gps_times": trip.track["t"].tolist(),
-        "predicted_route_arcs": route,
-        "predicted_route_lines": route_lines,
-        "predicted_arc_per_point": pred.tolist(),
+        "gps_points": res["gps_points"],
+        "gps_times": res["gps_times"],
+        "predicted_route_arcs": res["route_arcs"],
+        "predicted_route_lines": res["route_lines"],
+        "predicted_arc_per_point": res["hmm_pred"].tolist(),
     }
