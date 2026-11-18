@@ -1,3 +1,3 @@
-model,top1,macro_f1,logloss,continuity,inf_ms_per_1k,cv_macro_f1
-untuned,0.791,0.8903,0.0966,,10.2318,0.8838
-tuned,0.7989,0.8938,0.0844,,20.7349,0.8883
+model,cv_macro_f1,top1,accuracy,precision_pos,recall_pos,precision_macro,recall_macro,macro_f1,logloss,continuity,inf_ms_per_1k
+untuned,0.8829,0.7915,0.9635,0.8102,0.788,0.8944,0.8846,0.8894,0.0973,,10.5903
+tuned,0.8888,0.7996,0.9656,0.8305,0.7866,0.9045,0.8852,0.8945,0.084,,36.9934
