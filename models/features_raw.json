@@ -1,0 +1,1 @@
+["perp_dist_m", "proj_ratio_t", "arc_length_m", "gaussian_emission", "heading_diff_rad", "cos_heading_diff", "sin_heading_diff", "dt_sec", "step_dist_m", "speed_mps", "accel_mps2", "is_stationary", "from_out_deg", "to_out_deg", "from_in_deg", "dist_rank", "dist_diff_from_best_m", "dist_ratio_to_best", "num_candidates"]

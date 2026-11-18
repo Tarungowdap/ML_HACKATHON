@@ -1,0 +1,6 @@
+model,config,cv_f1_mean,cv_f1_std,cv_top1,train_top1,train_s,st_top1,st_macro_f1,st_logloss,st_continuity,st_inf_ms_per_1k
+LogReg (linear),"C=1, lbfgs, scaled",0.8587,0.0392,0.7459,0.7411,7.5519,0.774,0.8577,0.1254,,0.2453
+DecisionTree (tree),"max_depth=12, min_leaf=50, gini",0.8808,0.0426,0.7695,0.7853,37.917,0.7933,0.8888,0.0996,,0.1787
+RandomForest (bagging),"200 trees, min_leaf=2",0.8859,0.0424,0.7769,0.8374,390.6838,0.8029,0.8962,0.086,,5.5488
+LightGBM (boosting),"300 est, lr=0.1, leaves=31",0.8838,0.0413,0.7691,0.8028,25.1986,0.7947,0.8925,0.1031,,9.3835
+MLP (neural),"(64,32), adam, early stop, scaled",0.8794,0.0351,0.7653,0.7939,77.2821,0.7934,0.8878,0.0968,,1.0218
